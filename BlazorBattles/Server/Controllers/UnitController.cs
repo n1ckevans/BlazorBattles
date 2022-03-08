@@ -1,6 +1,8 @@
-﻿using BlazorBattles.Shared;
+﻿using BlazorBattles.Server.Data;
+using BlazorBattles.Shared;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -10,18 +12,64 @@ namespace BlazorBattles.Server.Controllers
     [ApiController]
     public class UnitController : ControllerBase
     {
+        private readonly DataContext _context;
 
-        public IList<Unit> Units => new List<Unit>
+        public UnitController(DataContext context)
         {
-            new Unit { Id = 1, Title = "Knight", Attack = 10, BananaCost = 100, Defense = 10},
-            new Unit { Id = 2, Title = "Archer", Attack = 15, BananaCost = 150, Defense = 5},
-            new Unit { Id = 3, Title = "Mage", Attack = 20, BananaCost = 200, Defense = 1}
-        };
+            _context = context;
+        }
 
         [HttpGet]
         public async Task<IActionResult> GetUnits()
         {
-            return Ok(Units);
+            var units = await _context.Units.ToListAsync();
+            return Ok(units);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddUnit(Unit unit)
+        {
+            _context.Units.Add(unit);
+            await _context.SaveChangesAsync();
+            return Ok(await _context.Units.ToListAsync());
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateUnit(int id, Unit unit)
+        {
+            var dbUnit = await _context.Units.FirstOrDefaultAsync(u => u.Id == id);
+
+            if(dbUnit == null)
+            {
+                return NotFound($"Unit with id of {id} does not exist");
+            }
+
+            dbUnit.Title = unit.Title;
+            dbUnit.Attack = unit.Attack;
+            dbUnit.Defense = unit.Defense;
+            dbUnit.HitPoints = unit.HitPoints;
+            dbUnit.BananaCost = unit.BananaCost;
+
+            await _context.SaveChangesAsync();
+    
+            return Ok(dbUnit);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteUnit (int id)
+        {
+            var dbUnit = await _context.Units.FirstOrDefaultAsync(u => u.Id == id);
+
+            if (dbUnit == null)
+            {
+                return NotFound($"Unit with id of {id} does not exist");
+            }
+
+            _context.Units.Remove(dbUnit);
+
+            await _context.SaveChangesAsync();
+
+            return Ok(await _context.Units.ToListAsync());
         }
 
     }
