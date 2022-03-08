@@ -1,15 +1,25 @@
 ﻿@inject IBananaService BananaService
 @implements IDisposable
 
-<div class="top-menu">
-    <img src="../icons/banana.png" />
-    <span class="popover-header">
-        @BananaService.Bananas
-    </span>
+<AuthorizeView>
+    <Authorized>
+        <div class="top-menu">
+        <img src="../icons/banana.png" />
+        <span class="popover-header">
+            @BananaService.Bananas
+        </span>
     
-    <AddBananas/>
-</div>
-
+        <AddBananas/>
+    </div>
+    </Authorized>
+    <NotAuthorized>
+        <div>
+            <NavLink href="">Login</NavLink> 
+            <NavLink href="register">Register</NavLink>
+        </div>
+    </NotAuthorized>
+    
+</AuthorizeView>
 
 @code {
 
