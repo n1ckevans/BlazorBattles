@@ -9,8 +9,8 @@ namespace BlazorBattles.Shared
 {
     public class UserLogin
     {
-        [Required(ErrorMessage = "Enter a username Vato")]
-        public string Username { get; set; }
+        [Required(ErrorMessage = "Enter an Email Address Vato")]
+        public string Email { get; set; }
         [Required(ErrorMessage = "Password is required Foo")] 
         public string Password { get; set; }
     }
